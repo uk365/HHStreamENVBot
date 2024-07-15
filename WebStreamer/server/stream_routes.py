@@ -74,6 +74,11 @@ async def stream_handler(request: web.Request):
         logging.critical(error_message)
         raise web.HTTPInternalServerError(text=error_message)
 
+# if url doesn't match any route, return 404
+@routes.get("/{tail:.*}")
+async def not_found(_):
+    raise web.HTTPNotFound(text="Not Found")
+
 class_cache = {}
 
 async def media_streamer(request: web.Request, message_id: int, channel_id):
