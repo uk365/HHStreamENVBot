@@ -51,35 +51,47 @@ async def stream_handler(request: web.Request):
 
         parts = encrypted_code.split("/")
         if len(parts) != 4:
-            raise web.HTTPBadRequest(text="Invalid path format")
+            raise web.HTTPBadRequest(
+            text="<html> <head><title>LinkerX</title></head> <body> <center><h1>Invalid Link</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
+        )
 
         cid, fid, expiration_time, sha256_key = parts
         current_time = int(time.time())
         if int(expiration_time) < current_time:
-            raise web.HTTPForbidden(text="Link is Expired")
+            raise web.HTTPForbidden(
+            text="<html> <head><title>LinkerX</title></head> <body> <center><h1>Link Expired</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
+        )
 
         sha256_verified = await sync_to_async(utils.verify_sha256_key, cid, fid, expiration_time, sha256_key)
         if not sha256_verified:
-            raise web.HTTPForbidden(text="Integrity check failed")
+            raise web.HTTPForbidden(
+            text="<html> <head><title>LinkerX</title></head> <body> <center><h1>Hash Verification Failed</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
+        )
 
         return await media_streamer(request, int(fid), int(cid))
     except InvalidHash as e:
-        raise web.HTTPForbidden(text=e.message)
+        raise web.HTTPForbidden(
+            text="<html> <head><title>LinkerX</title></head> <body> <center><h1>" + e.message + "</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
+        )
     except FileNotFoundError as e:
-        raise web.HTTPNotFound(text=e.message)
+        raise web.HTTPNotFound(
+            text="<html> <head><title>LinkerX</title></head> <body> <center><h1>" + e.message + "</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
+        )
     except (AttributeError, BadStatusLine, ConnectionResetError):
         pass
     except Exception as e:
         error_message = str(e)
         logging.critical(error_message)
-        raise web.HTTPInternalServerError(text=error_message)
+        raise web.HTTPInternalServerError(
+            text="<html> <head><title>LinkerX</title></head> <body> <center><h1>" + error_message + "</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
+        )
 
 # if url doesn't match any route, return 404
 @routes.get("/{tail:.*}")
 async def not_found(_):
     # show special html page for 404
     return web.Response(
-        text="<html> <head><title>404 - HH Proxy Gateway</title></head> <body> <center><h1>404 Not Found</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
+        text="<html> <head><title>LinkerX</title></head> <body> <center><h1>404 Not Found</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
     )
 
 class_cache = {}
