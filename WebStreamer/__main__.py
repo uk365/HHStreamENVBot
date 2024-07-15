@@ -4,6 +4,9 @@
 import sys
 import logging
 import asyncio
+import os
+import base64
+import requests
 from .vars import Var
 from aiohttp import web
 from pyrogram import idle
@@ -11,6 +14,7 @@ from WebStreamer import bot_loop, utils
 from WebStreamer import StreamBot
 from WebStreamer.server import web_server
 from WebStreamer.bot.clients import initialize_clients
+from WebStreamer.utils import TokenParser
 
 logging.basicConfig(
     level=logging.INFO,
@@ -25,14 +29,49 @@ logging.getLogger("aiohttp.web").setLevel(logging.ERROR)
 
 server = web.AppRunner(web_server())
 
-# if sys.version_info[1] > 9:
-#     loop = asyncio.new_event_loop()
-#     asyncio.set_event_loop(loop)
-# else:
+# Initialize TokenParser
+parser = TokenParser()
+GITHUB_TOKEN = parser.get_github_token()
+GITHUB_USERNAME = parser.get_github_username()
+GITHUB_REPO = parser.get_github_repo()
+GITHUB_API_URL = "https://api.github.com"
 
+async def upload_to_github(file_path, repo_path):
+    url = f"{GITHUB_API_URL}/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{repo_path}"
+    with open(file_path, "rb") as file:
+        content = base64.b64encode(file.read()).decode()
+    data = {
+        "message": f"Add {repo_path}",
+        "content": content,
+        "branch": "main"  # Adjust the branch as needed
+    }
+    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+    response = requests.put(url, json=data, headers=headers)
+    response.raise_for_status()
+    print(f"Uploaded {file_path} to GitHub")
+
+async def download_from_github(repo_path, file_path):
+    url = f"{GITHUB_API_URL}/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{repo_path}"
+    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        content = base64.b64decode(response.json()["content"])
+        with open(file_path, "wb") as file:
+            file.write(content)
+        print(f"Downloaded {repo_path} from GitHub")
+    elif response.status_code == 404:
+        print(f"{repo_path} not found in GitHub")
+    else:
+        response.raise_for_status()
+
+session_name = "WebStreamer"
+session_file = f"{session_name}.session"
 
 async def start_services():
     try:
+        # Download session file from GitHub before starting the bot
+        await download_from_github(session_file, session_file)
+
         print()
         print("-------------------- Initializing Telegram Bot --------------------")
         await StreamBot.start()
@@ -40,9 +79,11 @@ async def start_services():
         StreamBot.username = bot_info.username
         print("------------------------------ DONE ------------------------------")
         print()
-        print(
-            "---------------------- Initializing Clients ----------------------"
-        )
+
+        # Upload session file to GitHub after starting the bot
+        await upload_to_github(session_file, session_file)
+
+        print("---------------------- Initializing Clients ----------------------")
         await initialize_clients()
         print("------------------------------ DONE ------------------------------")
         if Var.ON_HEROKU:
