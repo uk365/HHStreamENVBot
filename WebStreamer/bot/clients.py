@@ -14,7 +14,8 @@ GITHUB_USERNAME = parser.get_github_username()
 GITHUB_REPO = parser.get_github_repo()
 GITHUB_API_URL = "https://api.github.com"
 
-def upload_to_github(file_path, repo_path):
+async def upload_to_github(file_path, repo_path):
+    print(f"Uploading {file_path} to GitHub")
     url = f"{GITHUB_API_URL}/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{repo_path}"
     with open(file_path, "rb") as file:
         content = base64.b64encode(file.read()).decode()
@@ -28,7 +29,8 @@ def upload_to_github(file_path, repo_path):
     response.raise_for_status()
     print(f"Uploaded {file_path} to GitHub")
 
-def download_from_github(repo_path, file_path):
+async def download_from_github(repo_path, file_path):
+    print(f"Downloading {repo_path} from GitHub")
     url = f"{GITHUB_API_URL}/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{repo_path}"
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
     response = requests.get(url, headers=headers)
@@ -60,7 +62,7 @@ async def initialize_clients():
             session_file = f"{session_name}.session"
 
             # Download session file from GitHub
-            download_from_github(session_file, session_file)
+            await download_from_github(session_file, session_file)
 
             client = await Client(
                 session_name=session_name,
@@ -74,7 +76,7 @@ async def initialize_clients():
             work_loads[client_id] = 0
 
             # Upload session file to GitHub
-            upload_to_github(session_file, session_file)
+            await upload_to_github(session_file, session_file)
 
             return client_id, client
         except Exception:
