@@ -80,7 +80,10 @@ async def stream_handler(request: web.Request):
 # if url doesn't match any route, return 404
 @routes.get("/{tail:.*}")
 async def not_found(_):
-    raise web.HTTPNotFound(text="Not Found")
+    # show special html page for 404
+    return web.Response(
+        text="<html> <head><title>404 - HH Proxy Gateway</title></head> <body> <center><h1>404 Not Found</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
+    )
 
 class_cache = {}
 
