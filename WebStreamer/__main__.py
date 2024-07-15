@@ -50,13 +50,17 @@ def upload_to_github(file_path, repo_path):
         
         if response.status_code == 200:
             # File exists, extract current content details
+            print(f"File Found: {repo_path}")
             current_content = response.json()
             sha = current_content.get('sha', '')
+            print(f"SHA: {sha}")
         elif response.status_code == 404:
             # File does not exist, initialize sha as empty string
+            print(f"File Not Found: {repo_path}")
             sha = ''
         else:
             # Handle other response codes
+            print(f"Failed to check {repo_path} on GitHub. Status code: {response.status_code}")
             response.raise_for_status()
         
         # Read the file content to upload
@@ -67,16 +71,16 @@ def upload_to_github(file_path, repo_path):
         data = {
             "message": f"Update {repo_path}",
             "content": content,
-            "sha": sha,
             "branch": "main"  # Adjust the branch as needed
         }
+
+        if sha != '':
+            data["sha"] = sha
         
         # Send PUT request to update the file if sha is provided; otherwise, POST to create new file
         headers = {"Authorization": f"token {GITHUB_TOKEN}"}
-        if sha:
-            response = requests.put(url, json=data, headers=headers)
-        else:
-            response = requests.post(url, json=data, headers=headers)
+        print(f"Trying to Upload {file_path} to GitHub")
+        response = requests.put(url, json=data, headers=headers)
         
         response.raise_for_status()
         
