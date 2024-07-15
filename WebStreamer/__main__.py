@@ -78,12 +78,14 @@ def upload_to_github(file_path, repo_path):
 
 def download_from_github(repo_path, file_path=None):
     try:
+        print(f"Downloading {repo_path} from GitHub")
+        print(f"Current directory: {os.getcwd()}")  # Print current working directory
+        
         url = f"{GITHUB_API_URL}/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{repo_path}"
         headers = {"Authorization": f"token {GITHUB_TOKEN}"}
         response = requests.get(url, headers=headers)
         
         if response.status_code == 200:
-            print(f"Downloading {repo_path} from GitHub")
             content = base64.b64decode(response.json()["content"])
             
             # If file_path is not provided, use the current directory and filename from repo_path
