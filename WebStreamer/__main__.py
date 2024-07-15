@@ -54,19 +54,23 @@ def upload_to_github(file_path, repo_path):
     print(f"Uploaded {file_path} to GitHub")
 
 def download_from_github(repo_path, file_path):
-    url = f"{GITHUB_API_URL}/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{repo_path}"
-    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        content = base64.b64decode(response.json()["content"])
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, "wb") as file:
-            file.write(content)
-        print(f"Downloaded {repo_path} from GitHub")
-    elif response.status_code == 404:
-        print(f"{repo_path} not found in GitHub, proceeding without session file")
-    else:
-        response.raise_for_status()
+    try:
+        url = f"{GITHUB_API_URL}/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{repo_path}"
+        headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            print(f"Downloading {repo_path} from GitHub")
+            content = base64.b64decode(response.json()["content"])
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            with open(file_path, "wb") as file:
+                file.write(content)
+            print(f"Downloaded {repo_path} from GitHub")
+        elif response.status_code == 404:
+            print(f"{repo_path} not found in GitHub, proceeding without session file")
+        else:
+            response.raise_for_status()
+    catch Exception as e:
+        print(f"Failed to download {repo_path} from GitHub: {e}")
 
 session_name = "WebStreamer"
 session_file = f"{session_name}.session"
