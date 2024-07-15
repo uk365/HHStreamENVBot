@@ -114,7 +114,7 @@ async def start_services():
     try:
         # Download session file from GitHub before starting the bot
         print("-------------------- Downloading Session File --------------------")
-        download_from_github(session_file, session_file)
+        download_from_github(session_file)
 
         print()
         print("-------------------- Initializing Telegram Bot --------------------")
