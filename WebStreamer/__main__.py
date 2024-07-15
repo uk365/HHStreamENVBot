@@ -44,6 +44,8 @@ def upload_to_github(file_path, repo_path):
         
         # Construct the API URL for the file in the repository
         url = f"{GITHUB_API_URL}/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{repo_path}"
+        headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+        response = requests.get(url, headers=headers)
         
         # Check if the file exists on GitHub to get its current SHA
         response = requests.get(url)
