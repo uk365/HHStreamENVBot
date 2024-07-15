@@ -76,7 +76,7 @@ def upload_to_github(file_path, repo_path):
         # Handle other response codes
         print(f"Failed to check file on GitHub. Status code: {response.status_code}")
 
-def download_from_github(repo_path, file_path=None):
+def download_from_github(repo_path):
     try:
         print(f"Downloading {repo_path} from GitHub")
         print(f"Current directory: {os.getcwd()}")  # Print current working directory
@@ -88,13 +88,9 @@ def download_from_github(repo_path, file_path=None):
         if response.status_code == 200:
             content = base64.b64decode(response.json()["content"])
             
-            # If file_path is not provided, use the current directory and filename from repo_path
-            if file_path is None:
-                file_name = os.path.basename(repo_path)
-                file_path = os.path.join(os.getcwd(), file_name)
-            
-            # Ensure directory exists
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            # Extract file name from repo_path
+            file_name = os.path.basename(repo_path)
+            file_path = os.path.join(os.getcwd(), file_name)
             
             # Write content to file
             with open(file_path, "wb") as file:
