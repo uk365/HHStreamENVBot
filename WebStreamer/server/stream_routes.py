@@ -46,6 +46,9 @@ async def root_route_handler(_):
 @routes.get("/{path:.*}", allow_head=True)
 async def stream_handler(request: web.Request):
     try:
+        # if path doesn't start with /-100 or retyrn 404
+        if not re.match(r"/-100", request.match_info['path']):
+            raise web.HTTPNotFound(text="Invalid Path")
         encrypted_code = urllib.parse.unquote(request.match_info['path'])
         logging.debug(f"Encrypted code Got: {encrypted_code}")
 
