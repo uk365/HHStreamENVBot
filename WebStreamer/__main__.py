@@ -69,8 +69,9 @@ def download_from_github(repo_path, file_path):
             print(f"{repo_path} not found in GitHub, proceeding without session file")
         else:
             response.raise_for_status()
-    catch Exception as e:
-        print(f"Failed to download {repo_path} from GitHub: {e}")
+    except Exception as e:
+        print(f"Failed to download {repo_path} from GitHub, proceeding without session file")
+        print(e)
 
 session_name = "WebStreamer"
 session_file = f"{session_name}.session"
