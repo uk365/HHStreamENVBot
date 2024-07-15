@@ -37,6 +37,9 @@ GITHUB_REPO = parser.get_github_repo()
 GITHUB_API_URL = "https://api.github.com"
 
 def upload_to_github(file_path, repo_path):
+    if not os.path.exists(file_path):
+        print(f"File {file_path} does not exist, skipping upload")
+        return
     url = f"{GITHUB_API_URL}/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{repo_path}"
     with open(file_path, "rb") as file:
         content = base64.b64encode(file.read()).decode()
@@ -56,6 +59,7 @@ def download_from_github(repo_path, file_path):
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         content = base64.b64decode(response.json()["content"])
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
         with open(file_path, "wb") as file:
             file.write(content)
         print(f"Downloaded {repo_path} from GitHub")
