@@ -37,25 +37,33 @@ GITHUB_REPO = parser.get_github_repo()
 GITHUB_API_URL = "https://api.github.com"
 
 def upload_to_github(file_path, repo_path):
-    if not os.path.exists(file_path):
-        print(f"File {file_path} does not exist, skipping upload")
-        return
-    
-    # Construct the API URL for the file in the repository
-    url = f"{GITHUB_API_URL}/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{repo_path}"
-    
-    # Check if the file exists on GitHub to get its current SHA
-    response = requests.get(url)
-    if response.status_code == 200:
-        # File exists, extract current content details
-        current_content = response.json()
-        sha = current_content.get('sha', '')
-
+    try:
+        if not os.path.exists(file_path):
+            print(f"File {file_path} does not exist, skipping upload")
+            return
+        
+        # Construct the API URL for the file in the repository
+        url = f"{GITHUB_API_URL}/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{repo_path}"
+        
+        # Check if the file exists on GitHub to get its current SHA
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            # File exists, extract current content details
+            current_content = response.json()
+            sha = current_content.get('sha', '')
+        elif response.status_code == 404:
+            # File does not exist, initialize sha as empty string
+            sha = ''
+        else:
+            # Handle other response codes
+            response.raise_for_status()
+        
         # Read the file content to upload
         with open(file_path, "rb") as file:
             content = base64.b64encode(file.read()).decode()
         
-        # Prepare data for updating the file
+        # Prepare data for updating or creating the file
         data = {
             "message": f"Update {repo_path}",
             "content": content,
@@ -63,18 +71,23 @@ def upload_to_github(file_path, repo_path):
             "branch": "main"  # Adjust the branch as needed
         }
         
-        # Send PUT request to update the file
+        # Send PUT request to update the file if sha is provided; otherwise, POST to create new file
         headers = {"Authorization": f"token {GITHUB_TOKEN}"}
-        response = requests.put(url, json=data, headers=headers)
+        if sha:
+            response = requests.put(url, json=data, headers=headers)
+        else:
+            response = requests.post(url, json=data, headers=headers)
+        
         response.raise_for_status()
-        print(f"Updated {file_path} on GitHub")
+        
+        if response.status_code == 200 or response.status_code == 201:
+            print(f"Updated {repo_path} on GitHub")
+        else:
+            print(f"Failed to update {repo_path} on GitHub. Status code: {response.status_code}")
     
-    elif response.status_code == 404:
-        # File does not exist, create a new file (or handle as needed)
-        print(f"File {repo_path} does not exist on GitHub.")
-    else:
-        # Handle other response codes
-        print(f"Failed to check file on GitHub. Status code: {response.status_code}")
+    except Exception as e:
+        print(f"Failed to upload {file_path} to GitHub")
+        print(e)
 
 def download_from_github(repo_path):
     try:
