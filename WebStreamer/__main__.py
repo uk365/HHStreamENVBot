@@ -76,22 +76,34 @@ def upload_to_github(file_path, repo_path):
         # Handle other response codes
         print(f"Failed to check file on GitHub. Status code: {response.status_code}")
 
-def download_from_github(repo_path, file_path):
+def download_from_github(repo_path, file_path=None):
     try:
         url = f"{GITHUB_API_URL}/repos/{GITHUB_USERNAME}/{GITHUB_REPO}/contents/{repo_path}"
         headers = {"Authorization": f"token {GITHUB_TOKEN}"}
         response = requests.get(url, headers=headers)
+        
         if response.status_code == 200:
             print(f"Downloading {repo_path} from GitHub")
             content = base64.b64decode(response.json()["content"])
+            
+            # If file_path is not provided, use the current directory and filename from repo_path
+            if file_path is None:
+                file_path = os.path.basename(repo_path)
+            
+            # Ensure directory exists
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            
+            # Write content to file
             with open(file_path, "wb") as file:
                 file.write(content)
-            print(f"Downloaded {repo_path} from GitHub")
+            
+            print(f"Downloaded {repo_path} from GitHub to {file_path}")
+        
         elif response.status_code == 404:
             print(f"{repo_path} not found in GitHub, proceeding without session file")
         else:
             response.raise_for_status()
+    
     except Exception as e:
         print(f"Failed to download {repo_path} from GitHub, proceeding without session file")
         print(e)
