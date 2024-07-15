@@ -28,19 +28,8 @@ async def sync_to_async(func, *args, wait=True, **kwargs):
 routes = web.RouteTableDef()
 @routes.get("/", allow_head=True)
 async def root_route_handler(_):
-    return web.json_response(
-        {
-            "server_status": "running",
-            "uptime": utils.get_readable_time(time.time() - StartTime),
-            "connected_bots": len(multi_clients),
-            "loads": dict(
-                ("bot" + str(c + 1), l)
-                for c, (_, l) in enumerate(
-                    sorted(work_loads.items(), key=lambda x: x[1], reverse=True)
-                )
-            ),
-            "version": __version__,
-        }
+    return web.Response(
+            text="<html> <head><title>LinkerX</title></head> <body> <center><h1>Running Since "+ utils.get_readable_time(time.time() - StartTime) +"</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
     )
 
 @routes.get("/{path:.*}", allow_head=True)
