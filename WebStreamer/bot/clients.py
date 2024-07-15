@@ -119,7 +119,7 @@ async def initialize_clients():
             session_file = f"{session_name}.session"
 
             # Download session file from GitHub
-            download_from_github(session_file, session_file)
+            download_from_github(session_file)
 
             client = await Client(
                 session_name=session_name,
