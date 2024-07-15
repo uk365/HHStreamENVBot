@@ -74,6 +74,7 @@ session_file = f"{session_name}.session"
 async def start_services():
     try:
         # Download session file from GitHub before starting the bot
+        print("-------------------- Downloading Session File --------------------")
         download_from_github(session_file, session_file)
 
         print()
@@ -85,6 +86,7 @@ async def start_services():
         print()
 
         # Upload session file to GitHub after starting the bot
+        print("-------------------- Uploading Session File --------------------")
         upload_to_github(session_file, session_file)
 
         print("---------------------- Initializing Clients ----------------------")
