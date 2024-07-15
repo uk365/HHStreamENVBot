@@ -47,9 +47,6 @@ def upload_to_github(file_path, repo_path):
         headers = {"Authorization": f"token {GITHUB_TOKEN}"}
         response = requests.get(url, headers=headers)
         
-        # Check if the file exists on GitHub to get its current SHA
-        response = requests.get(url)
-        
         if response.status_code == 200:
             # File exists, extract current content details
             print(f"File Found: {repo_path}")
