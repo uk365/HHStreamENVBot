@@ -90,7 +90,8 @@ def download_from_github(repo_path, file_path=None):
             
             # If file_path is not provided, use the current directory and filename from repo_path
             if file_path is None:
-                file_path = os.path.basename(repo_path)
+                file_name = os.path.basename(repo_path)
+                file_path = os.path.join(os.getcwd(), file_name)
             
             # Ensure directory exists
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
