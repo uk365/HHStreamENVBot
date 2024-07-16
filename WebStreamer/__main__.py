@@ -36,7 +36,7 @@ GITHUB_USERNAME = parser.get_github_username()
 GITHUB_REPO = parser.get_github_repo()
 GITHUB_API_URL = "https://api.github.com"
 
-def upload_to_github(file_path, repo_path):
+async def upload_to_github(file_path, repo_path):
     try:
         if not os.path.exists(file_path):
             print(f"File {file_path} does not exist, skipping upload")
@@ -92,7 +92,7 @@ def upload_to_github(file_path, repo_path):
         print(f"Failed to upload {file_path} to GitHub")
         print(e)
 
-def download_from_github(repo_path):
+async def download_from_github(repo_path):
     try:
         print(f"Downloading {repo_path} from GitHub")
         print(f"Current directory: {os.getcwd()}")  # Print current working directory
@@ -130,7 +130,7 @@ async def start_services():
     try:
         # Download session file from GitHub before starting the bot
         print("-------------------- Downloading Session File --------------------")
-        download_from_github(session_file)
+        await download_from_github(session_file)
 
         print()
         print("-------------------- Initializing Telegram Bot --------------------")
@@ -142,7 +142,7 @@ async def start_services():
 
         # Upload session file to GitHub after starting the bot
         print("-------------------- Uploading Session File --------------------")
-        upload_to_github(session_file, session_file)
+        await upload_to_github(session_file, session_file)
 
         print("---------------------- Initializing Clients ----------------------")
         await initialize_clients()

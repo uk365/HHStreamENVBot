@@ -14,7 +14,7 @@ GITHUB_USERNAME = parser.get_github_username()
 GITHUB_REPO = parser.get_github_repo()
 GITHUB_API_URL = "https://api.github.com"
 
-def upload_to_github(file_path, repo_path):
+async def upload_to_github(file_path, repo_path):
     try:
         if not os.path.exists(file_path):
             print(f"File {file_path} does not exist, skipping upload")
@@ -70,7 +70,7 @@ def upload_to_github(file_path, repo_path):
         print(f"Failed to upload {file_path} to GitHub")
         print(e)
 
-def download_from_github(repo_path):
+async def download_from_github(repo_path):
     try:
         print(f"Downloading {repo_path} from GitHub")
         print(f"Current directory: {os.getcwd()}")  # Print current working directory
@@ -119,7 +119,7 @@ async def initialize_clients():
             session_file = f"{session_name}.session"
 
             # Download session file from GitHub
-            download_from_github(session_file)
+            await download_from_github(session_file)
 
             client = await Client(
                 name=session_name,
@@ -133,7 +133,7 @@ async def initialize_clients():
             work_loads[client_id] = 0
 
             # Upload session file to GitHub
-            upload_to_github(session_file, session_file)
+            await upload_to_github(session_file, session_file)
 
             return client_id, client
         except Exception:
