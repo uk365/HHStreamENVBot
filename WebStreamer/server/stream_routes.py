@@ -41,30 +41,30 @@ async def stream_handler(request: web.Request):
         parts = encrypted_code.split("/")
         if len(parts) != 4:
             raise web.HTTPBadRequest(
-            text="<html> <head><title>LinkerX</title></head> <body> <center><h1>Invalid Link</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
+            text='<html> <head> <title>LinkerX CDN</title> <style> body{ margin:0; padding:0; width:100%; height:100%; color:#b0bec5; display:table; font-weight:100; font-family:Lato } .container{ text-align:center; display:table-cell; vertical-align:middle } .content{ text-align:center; display:inline-block } .message{ font-size:80px; margin-bottom:40px } .submessage{ font-size:40px; margin-bottom:40px } .copyright{ font-size:20px; } a{ text-decoration:none; color:#3498db } </style> </head> <body> <div class="container"> <div class="content"> <div class="message">LinkerX CDN</div> <div class="submessage">Invalid Link</div> <div class="copyright">Hash Hackers and LiquidX Projects</div> </div> </div> </body> </html>', content_type="text/html"
         )
 
         cid, fid, expiration_time, sha256_key = parts
         current_time = int(time.time())
         if int(expiration_time) < current_time:
             raise web.HTTPForbidden(
-            text="<html> <head><title>LinkerX</title></head> <body> <center><h1>Link Expired</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
+            text='<html> <head> <title>LinkerX CDN</title> <style> body{ margin:0; padding:0; width:100%; height:100%; color:#b0bec5; display:table; font-weight:100; font-family:Lato } .container{ text-align:center; display:table-cell; vertical-align:middle } .content{ text-align:center; display:inline-block } .message{ font-size:80px; margin-bottom:40px } .submessage{ font-size:40px; margin-bottom:40px } .copyright{ font-size:20px; } a{ text-decoration:none; color:#3498db } </style> </head> <body> <div class="container"> <div class="content"> <div class="message">LinkerX CDN</div> <div class="submessage">Link Expired</div> <div class="copyright">Hash Hackers and LiquidX Projects</div> </div> </div> </body> </html>', content_type="text/html"
         )
 
         sha256_verified = await sync_to_async(utils.verify_sha256_key, cid, fid, expiration_time, sha256_key)
         if not sha256_verified:
             raise web.HTTPForbidden(
-            text="<html> <head><title>LinkerX</title></head> <body> <center><h1>Hash Verification Failed</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
+            text='<html> <head> <title>LinkerX CDN</title> <style> body{ margin:0; padding:0; width:100%; height:100%; color:#b0bec5; display:table; font-weight:100; font-family:Lato } .container{ text-align:center; display:table-cell; vertical-align:middle } .content{ text-align:center; display:inline-block } .message{ font-size:80px; margin-bottom:40px } .submessage{ font-size:40px; margin-bottom:40px } .copyright{ font-size:20px; } a{ text-decoration:none; color:#3498db } </style> </head> <body> <div class="container"> <div class="content"> <div class="message">LinkerX CDN</div> <div class="submessage">Hash Manipulation Detected</div> <div class="copyright">Hash Hackers and LiquidX Projects</div> </div> </div> </body> </html>', content_type="text/html"
         )
 
         return await media_streamer(request, int(fid), int(cid))
     except InvalidHash as e:
         raise web.HTTPForbidden(
-            text="<html> <head><title>LinkerX</title></head> <body> <center><h1>" + e.message + "</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
+            text='<html> <head> <title>LinkerX CDN</title> <style> body{ margin:0; padding:0; width:100%; height:100%; color:#b0bec5; display:table; font-weight:100; font-family:Lato } .container{ text-align:center; display:table-cell; vertical-align:middle } .content{ text-align:center; display:inline-block } .message{ font-size:80px; margin-bottom:40px } .submessage{ font-size:40px; margin-bottom:40px } .copyright{ font-size:20px; } a{ text-decoration:none; color:#3498db } </style> </head> <body> <div class="container"> <div class="content"> <div class="message">LinkerX CDN</div> <div class="submessage">Invalid File Hash - '+e.message+'</div> <div class="copyright">Hash Hackers and LiquidX Projects</div> </div> </div> </body> </html>', content_type="text/html"
         )
     except FileNotFoundError as e:
         raise web.HTTPNotFound(
-            text="<html> <head><title>LinkerX</title></head> <body> <center><h1>" + e.message + "</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
+            text='<html> <head> <title>LinkerX CDN</title> <style> body{ margin:0; padding:0; width:100%; height:100%; color:#b0bec5; display:table; font-weight:100; font-family:Lato } .container{ text-align:center; display:table-cell; vertical-align:middle } .content{ text-align:center; display:inline-block } .message{ font-size:80px; margin-bottom:40px } .submessage{ font-size:40px; margin-bottom:40px } .copyright{ font-size:20px; } a{ text-decoration:none; color:#3498db } </style> </head> <body> <div class="container"> <div class="content"> <div class="message">LinkerX CDN</div> <div class="submessage">File Not Found - '+e.message+'</div> <div class="copyright">Hash Hackers and LiquidX Projects</div> </div> </div> </body> </html>', content_type="text/html"
         )
     except (AttributeError, BadStatusLine, ConnectionResetError):
         pass
@@ -72,7 +72,7 @@ async def stream_handler(request: web.Request):
         error_message = str(e)
         logging.critical(error_message)
         raise web.HTTPInternalServerError(
-            text="<html> <head><title>LinkerX</title></head> <body> <center><h1>" + error_message + "</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
+            text='<html> <head> <title>LinkerX CDN</title> <style> body{ margin:0; padding:0; width:100%; height:100%; color:#b0bec5; display:table; font-weight:100; font-family:Lato } .container{ text-align:center; display:table-cell; vertical-align:middle } .content{ text-align:center; display:inline-block } .message{ font-size:80px; margin-bottom:40px } .submessage{ font-size:40px; margin-bottom:40px } .copyright{ font-size:20px; } a{ text-decoration:none; color:#3498db } </style> </head> <body> <div class="container"> <div class="content"> <div class="message">LinkerX CDN</div> <div class="submessage">'+error_message+'</div> <div class="copyright">Hash Hackers and LiquidX Projects</div> </div> </div> </body> </html>', content_type="text/html"
         )
 
 # if url doesn't match any route, return 404
@@ -80,7 +80,7 @@ async def stream_handler(request: web.Request):
 async def not_found(_):
     # show special html page for 404
     return web.Response(
-        text="<html> <head><title>LinkerX</title></head> <body> <center><h1>404 Not Found</h1></center> <hr><center>nginx</center> </body> </html>", content_type="text/html"
+        text='<html> <head> <title>LinkerX CDN</title> <style> body{ margin:0; padding:0; width:100%; height:100%; color:#b0bec5; display:table; font-weight:100; font-family:Lato } .container{ text-align:center; display:table-cell; vertical-align:middle } .content{ text-align:center; display:inline-block } .message{ font-size:80px; margin-bottom:40px } .submessage{ font-size:40px; margin-bottom:40px } .copyright{ font-size:20px; } a{ text-decoration:none; color:#3498db } </style> </head> <body> <div class="container"> <div class="content"> <div class="message">LinkerX CDN</div> <div class="submessage">Page Not Found</div> <div class="copyright">Hash Hackers and LiquidX Projects</div> </div> </div> </body> </html>', content_type="text/html"
     )
 
 class_cache = {}
