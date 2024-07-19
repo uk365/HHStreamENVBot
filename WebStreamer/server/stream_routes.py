@@ -44,8 +44,25 @@ async def info_route_handler(request: web.Request):
         )
 
         cid, fid = parts
-        file_properties = await sync_to_async(utils.generate_file_properties, int(fid), int(cid))
-        return web.json_response(file_properties)
+        index = min(work_loads, key=work_loads.get)
+        faster_client = multi_clients[index]
+        
+        if Var.MULTI_CLIENT:
+            logging.info(f"Client {index} is now serving {request.remote}")
+
+        if faster_client in class_cache:
+            tg_connect = class_cache[faster_client]
+            logging.debug(f"Using cached ByteStreamer object for client {index}")
+        else:
+            logging.debug(f"Creating new ByteStreamer object for client {index}")
+            tg_connect = utils.ByteStreamer(faster_client)
+            class_cache[faster_client] = tg_connect
+        logging.debug("before calling get_file_properties")
+        file_id = await tg_connect.get_file_properties(int(fid), int(cid))
+
+        return web.Response(
+            text='<html> <head> <title>LinkerX CDN</title> <style> body{ margin:0; padding:0; width:100%; height:100%; color:#b0bec5; display:table; font-weight:100; font-family:Lato } .container{ text-align:center; display:table-cell; vertical-align:middle } .content{ text-align:center; display:inline-block } .message{ font-size:80px; margin-bottom:40px } .submessage{ font-size:40px; margin-bottom:40px } .copyright{ font-size:20px; } a{ text-decoration:none; color:#3498db } </style> </head> <body> <div class="container"> <div class="content"> <div class="message">LinkerX CDN</div> <div class="submessage">'+{file_id.file_name}+'</div> <div class="copyright">Hash Hackers and LiquidX Projects</div> </div> </div> </body> </html>', content_type="text/html"
+        )
     except FileNotFoundError as e:
         raise web.HTTPNotFound(
             text='<html> <head> <title>LinkerX CDN</title> <style> body{ margin:0; padding:0; width:100%; height:100%; color:#b0bec5; display:table; font-weight:100; font-family:Lato } .container{ text-align:center; display:table-cell; vertical-align:middle } .content{ text-align:center; display:inline-block } .message{ font-size:80px; margin-bottom:40px } .submessage{ font-size:40px; margin-bottom:40px } .copyright{ font-size:20px; } a{ text-decoration:none; color:#3498db } </style> </head> <body> <div class="container"> <div class="content"> <div class="message">LinkerX CDN</div> <div class="submessage">File Not Found - '+e.message+'</div> <div class="copyright">Hash Hackers and LiquidX Projects</div> </div> </div> </body> </html>', content_type="text/html"
