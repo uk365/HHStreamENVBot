@@ -44,7 +44,7 @@ async def info_route_handler(request: web.Request):
         )
 
         cid, fid = parts
-        file_properties = await sync_to_async(utils.get_file_properties, int(fid), int(cid))
+        file_properties = await sync_to_async(utils.file_properties, int(fid), int(cid))
         return web.json_response(file_properties)
     except FileNotFoundError as e:
         raise web.HTTPNotFound(
