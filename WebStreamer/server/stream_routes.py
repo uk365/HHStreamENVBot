@@ -59,10 +59,10 @@ async def info_route_handler(request: web.Request):
             class_cache[faster_client] = tg_connect
         logging.debug("before calling get_file_properties")
         file_id = await tg_connect.get_file_properties(int(fid), int(cid))
-        logging.info(f"File Properties: {file_id}")
+        dc_id = file_id.dc_id
         file_name = file_id.file_name
         file_size = file_id.file_size
-        file_details = file_name + " " + str(file_size)
+        file_details = file_name + " " + str(formatFileSize(file_size)) + " on DC " + str(dc_id)
         return web.Response(
             text='<html> <head> <title>LinkerX CDN</title> <style> body{ margin:0; padding:0; width:100%; height:100%; color:#b0bec5; display:table; font-weight:100; font-family:Lato } .container{ text-align:center; display:table-cell; vertical-align:middle } .content{ text-align:center; display:inline-block } .message{ font-size:80px; margin-bottom:40px } .submessage{ font-size:40px; margin-bottom:40px } .copyright{ font-size:20px; } a{ text-decoration:none; color:#3498db } </style> </head> <body> <div class="container"> <div class="content"> <div class="message">LinkerX CDN</div> <div class="submessage">' + file_details + '</div> <div class="copyright">Hash Hackers and LiquidX Projects</div> </div> </div> </body> </html>', content_type="text/html"
         )
@@ -216,3 +216,11 @@ async def media_streamer(request: web.Request, message_id: int, channel_id):
         return web.Response(
             text='<html> <head> <title>LinkerX CDN</title> <style> body{ margin:0; padding:0; width:100%; height:100%; color:#b0bec5; display:table; font-weight:100; font-family:Lato } .container{ text-align:center; display:table-cell; vertical-align:middle } .content{ text-align:center; display:inline-block } .message{ font-size:80px; margin-bottom:40px } .submessage{ font-size:40px; margin-bottom:40px } .copyright{ font-size:20px; } a{ text-decoration:none; color:#3498db } </style> </head> <body> <div class="container"> <div class="content"> <div class="message">LinkerX CDN</div> <div class="submessage">'+str(e)+'</div> <div class="copyright">Hash Hackers and LiquidX Projects</div> </div> </div> </body> </html>', content_type="text/html"
         )
+    
+async def formatFileSize(bytes):
+    if bytes == 0:
+        return "0B"
+    k = 1024
+    sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+    i = math.floor(math.log(bytes) / math.log(k))
+    return f"{round(bytes / math.pow(k, i), 2)} {sizes[i]}"
