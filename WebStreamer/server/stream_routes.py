@@ -59,6 +59,7 @@ async def info_route_handler(request: web.Request):
             class_cache[faster_client] = tg_connect
         logging.debug("before calling get_file_properties")
         file_id = await tg_connect.get_file_properties(int(fid), int(cid))
+        logging.info(f"File Properties: {file_id}")
         file_name = file_id.file_name
         file_size = file_id.file_size
         file_details = file_name + " " + str(file_size)
