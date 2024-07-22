@@ -64,7 +64,7 @@ async def info_route_handler(request: web.Request):
         file_size = file_id.file_size
         file_details = file_name + " " + str(formatFileSize(file_size)) + " on DC " + str(dc_id)
         return web.Response(
-            text='<html> <head> <title>LinkerX CDN</title> <style> body{ margin:0; padding:0; width:100%; height:100%; color:#b0bec5; display:table; font-weight:100; font-family:Lato } .container{ text-align:center; display:table-cell; vertical-align:middle } .content{ text-align:center; display:inline-block } .message{ font-size:80px; margin-bottom:40px } .submessage{ font-size:40px; margin-bottom:40px } .copyright{ font-size:20px; } a{ text-decoration:none; color:#3498db } </style> </head> <body> <div class="container"> <div class="content"> <div class="message">LinkerX CDN</div> <div class="submessage">' + file_details + '</div> <div class="copyright">Hash Hackers and LiquidX Projects</div> </div> </div> </body> </html>', content_type="text/html"
+            text="{\"file_name\":\"" + file_name + "\", \"file_size\":\"" + str(formatFileSize(file_size)) + "\", \"dc_id\":\"" + str(dc_id) + "\"}", content_type="application/json"
         )
     except FileNotFoundError as e:
         raise web.HTTPNotFound(
