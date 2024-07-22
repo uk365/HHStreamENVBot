@@ -62,9 +62,9 @@ async def info_route_handler(request: web.Request):
         dc_id = file_id.dc_id
         file_name = file_id.file_name
         file_size = file_id.file_size
-        file_details = file_name + " " + str(formatFileSize(file_size)) + " on DC " + str(dc_id)
+        #file_details = file_name + " " + str(await formatFileSize(file_size)) + " on DC " + str(dc_id)
         return web.Response(
-            text="{\"file_name\":\"" + file_name + "\", \"file_size\":\"" + str(formatFileSize(file_size)) + "\", \"dc_id\":\"" + str(dc_id) + "\"}", content_type="application/json"
+            text="{\"file_name\":\"" + file_name + "\", \"file_size\":\"" + str(await formatFileSize(file_size)) + "\", \"dc_id\":" + str(dc_id) + "}", content_type="application/json"
         )
     except FileNotFoundError as e:
         raise web.HTTPNotFound(
